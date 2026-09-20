@@ -46,7 +46,12 @@ class AbsenController extends Controller
 
         // Filter per Status
         if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
+            $statusInput = $request->input('status');
+            if (in_array(strtolower($statusInput), ['alfa', 'alpa'])) {
+                $query->whereIn('status', ['Alpa', 'Alfa']);
+            } else {
+                $query->where('status', $statusInput);
+            }
         }
 
         // Filter per Angkatan via User relation

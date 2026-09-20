@@ -282,7 +282,7 @@ class ApiAbsenController extends Controller
         $totalHadir = $absens->where('status', 'Hadir')->count();
         $totalIzin  = $absens->where('status', 'Izin')->count();
         $totalSakit = $absens->where('status', 'Sakit')->count();
-        $totalAlpa  = $absens->where('status', 'Alpa')->count();
+        $totalAlpa  = $absens->whereIn('status', ['Alpa', 'Alfa'])->count();
 
         return response()->json([
             'success' => true,
