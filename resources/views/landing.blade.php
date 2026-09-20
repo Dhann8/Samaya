@@ -197,7 +197,7 @@
                                             </div>
                                             <div>
                                                 <p class="text-[10px] text-blue-100">Siswa • XI RPL 1</p>
-                                                <p class="text-xs font-bold">Ahmad Ramdhani</p>
+                                                <p class="text-xs font-bold">Ramdhani</p>
                                             </div>
                                         </div>
                                         <span class="px-2.5 py-0.5 bg-emerald-500 text-white rounded-full text-[9px] font-extrabold">ONLINE</span>
