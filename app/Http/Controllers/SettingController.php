@@ -28,6 +28,7 @@ class SettingController extends Controller
             'wa_gateway_url' => 'nullable|string',
             'wa_api_token' => 'nullable|string',
             'wa_delay_seconds' => 'nullable|numeric|min:0|max:60',
+            'apk_download_url' => 'nullable|string',
         ]);
 
         foreach ($validated as $key => $value) {

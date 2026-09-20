@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Setting;
 
 class AuthController extends Controller
 {
@@ -15,6 +16,11 @@ class AuthController extends Controller
 
     public function downloadApk()
     {
+        $externalUrl = Setting::get('apk_download_url');
+        if (!empty($externalUrl)) {
+            return redirect()->away($externalUrl);
+        }
+
         $file = public_path('downloads/SaMaya-Mobile.apk');
         if (!file_exists($file)) {
             $file = base_path('../Flutter/build/app/outputs/flutter-apk/app-debug.apk');
@@ -26,7 +32,7 @@ class AuthController extends Controller
             ]);
         }
 
-        return back()->with('error', 'File APK tidak ditemukan di server.');
+        return back()->with('error', 'File APK tidak ditemukan di server. Jika menggunakan server Cloud/Vercel, silakan isi URL Link Download APK pada menu Pengaturan.');
     }
 
     public function index()

@@ -269,6 +269,13 @@
                 <input type="text" name="wa_gateway_url" value="{{ $settings['wa_gateway_url'] ?? 'http://localhost:3000/api/send-wa' }}" required
                     class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-800 focus:outline-none focus:border-blue-500">
             </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">URL / Link External Download APK (Opsional)</label>
+                <input type="text" name="apk_download_url" value="{{ $settings['apk_download_url'] ?? '' }}" placeholder="Contoh: https://drive.google.com/uc?id=... atau link GitHub/Tailscale"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-blue-500">
+                <p class="text-xs text-slate-600 mt-1">Gunakan link ini jika aplikasi di-deploy ke Vercel/Cloud di mana berkas file `.apk` (190MB) tidak dapat diunggah langsung ke serverless function.</p>
+            </div>
         </div>
 
         <!-- Submit Button -->
