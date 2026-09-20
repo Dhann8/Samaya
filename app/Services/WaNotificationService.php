@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class WaNotificationService
 {
@@ -29,7 +30,116 @@ class WaNotificationService
     }
 
     /**
-     * Send Notification (Handles both Masuk & Pulang)
+     * Send Late Warning Notification
+     */
+    public static function sendWarningTelat(User $user, Absen $absen): void
+    {
+        self::sendNotification($user, $absen, 'WARNING_TELAT');
+    }
+
+    /**
+     * Send Alfa Notification
+     */
+    public static function sendAlfa(User $user, Absen $absen): void
+    {
+        self::sendNotification($user, $absen, 'ALFA');
+    }
+
+    /**
+     * Check unattended students and queue/send WhatsApp notifications
+     * - If time >= jam_batas_terlambat and no attendance: send WA late warning
+     * - If time >= jam_batas_alfa and no attendance: record Alfa & send WA notification
+     */
+    public static function checkAndSendUnattendedNotifications(): array
+    {
+        $enabled = Setting::get('wa_notification_enabled', '1');
+        if ($enabled === '0' || $enabled === 'false') {
+            return ['processed' => 0, 'warnings' => 0, 'alfas' => 0];
+        }
+
+        $jamBatasTerlambat = Setting::get('jam_batas_terlambat', '07:30');
+        $jamBatasAlfa      = Setting::get('jam_batas_alfa', '08:00');
+
+        $now = Carbon::now();
+        $currentTime = $now->format('H:i');
+        $today = $now->toDateString();
+        $todayDay = $now->locale('id')->isoFormat('dddd');
+
+        $warningCount = 0;
+        $alfaCount = 0;
+
+        // Fetch all active students (role 'siswa')
+        $students = User::where('role', 'siswa')->get();
+
+        foreach ($students as $student) {
+            $absen = Absen::where('user_id', $student->id)->where('tanggal', $today)->first();
+
+            // 1. Check if current time >= jam_batas_alfa
+            if ($currentTime >= $jamBatasAlfa) {
+                if (!$absen) {
+                    // Create Alfa attendance record automatically for today
+                    $absen = Absen::create([
+                        'user_id'     => $student->id,
+                        'tanggal'     => $today,
+                        'hari'        => $todayDay,
+                        'kelas'       => $student->kelas ?? 'Umum',
+                        'status'      => 'Alpa',
+                        'keterangan'  => 'Otomatis Alfa oleh Sistem (Melewati jam batas alfa ' . $jamBatasAlfa . ')',
+                        'waktu_absen' => $jamBatasAlfa . ':00',
+                        'lokasi'      => 'Sistem Otomatis',
+                    ]);
+
+                    self::sendAlfa($student, $absen);
+                    $alfaCount++;
+                } elseif ($absen->lokasi === 'Sistem Otomatis' && $absen->status !== 'Alpa') {
+                    // Automatically transition status from 'Belum Absen / Terlambat' to 'Alpa'
+                    $absen->update([
+                        'status'     => 'Alpa',
+                        'keterangan' => 'Otomatis Alfa oleh Sistem (Melewati jam batas alfa ' . $jamBatasAlfa . ')',
+                    ]);
+
+                    $cacheKey = "wa_alfa_sent_{$student->id}_{$today}";
+                    if (!Cache::has($cacheKey)) {
+                        self::sendAlfa($student, $absen);
+                        Cache::put($cacheKey, true, now()->endOfDay());
+                        $alfaCount++;
+                    }
+                }
+            } 
+            // 2. Check if current time >= jam_batas_terlambat but < jam_batas_alfa
+            elseif ($currentTime >= $jamBatasTerlambat) {
+                if (!$absen) {
+                    // Automatically create attendance record for late/unattended student
+                    $absen = Absen::create([
+                        'user_id'     => $student->id,
+                        'tanggal'     => $today,
+                        'hari'        => $todayDay,
+                        'kelas'       => $student->kelas ?? 'Umum',
+                        'status'      => 'Hadir',
+                        'keterangan'  => 'Belum Absen / Terlambat (Melewati jam batas masuk ' . $jamBatasTerlambat . ')',
+                        'waktu_absen' => $jamBatasTerlambat . ':00',
+                        'lokasi'      => 'Sistem Otomatis',
+                    ]);
+
+                    $cacheKey = "wa_warning_telat_{$student->id}_{$today}";
+                    if (!Cache::has($cacheKey)) {
+                        self::sendWarningTelat($student, $absen);
+                        Cache::put($cacheKey, true, now()->endOfDay());
+                        $warningCount++;
+                    }
+                }
+            }
+        }
+
+        return [
+            'processed' => count($students),
+            'warnings'  => $warningCount,
+            'alfas'     => $alfaCount,
+        ];
+    }
+
+    /**
+     * Send Notification (Handles Masuk, Pulang, WARNING_TELAT, & ALFA)
      */
     private static function sendNotification(User $user, Absen $absen, string $type): void
     {
@@ -45,12 +155,18 @@ class WaNotificationService
 
         $gateway = Setting::get('wa_gateway_url', 'http://localhost:3000/api/send-wa');
         $token   = Setting::get('wa_api_token', '');
-        
-        $dateFormatted = Carbon::parse($absen->tanggal)->translatedFormat('d M Y');
-        $waktu = ($type === 'MASUK') 
-            ? ($absen->waktu_absen ?? Carbon::now()->format('H:i:s')) 
-            : ($absen->waktu_pulang ?? Carbon::now()->format('H:i:s'));
+        $dateFormatted = Carbon::parse($absen->tanggal ?? now())->translatedFormat('d M Y');
+        $waktu = ($type === 'PULANG') 
+            ? ($absen->waktu_pulang ?? Carbon::now()->format('H:i:s')) 
+            : ($absen->waktu_absen ?? Carbon::now()->format('H:i:s'));
         $timeFormatted = $waktu . ' WIB';
+
+        $statusDisplay = $absen->keterangan ?? $absen->status ?? 'Hadir';
+
+        $delay = (int) Setting::get('wa_delay_seconds', '2');
+        if ($delay > 0) {
+            sleep($delay);
+        }
 
         $payload = [
             'phone'   => $user->no_hp,
@@ -59,8 +175,9 @@ class WaNotificationService
             'kelas'   => $user->kelas ?? 'Umum',
             'date'    => $dateFormatted,
             'time'    => $timeFormatted,
-            'status'  => $absen->status ?? 'Hadir',
+            'status'  => $statusDisplay,
             'lokasi'  => $absen->lokasi ?? 'Lokasi GPS/Sekolah',
+            'delay'   => $delay,
             'token'   => $token,
             'gateway' => $gateway,
         ];

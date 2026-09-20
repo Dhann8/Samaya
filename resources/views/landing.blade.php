@@ -634,12 +634,6 @@
                         Sistem Presensi Digital & Absensi QR Code Sekolah Modern. Solusi efisien presensi siswa, pengajuan izin/sakit online berbasis foto bukti, dan approval Wali Kelas secara real-time.
                     </p>
 
-                    <!-- Server Status Badge -->
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-xs text-slate-300">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span class="font-medium">Status Server: <strong>Online & Active</strong></span>
-                    </div>
-
                     <!-- Social Icons -->
                     <div class="flex items-center gap-3 pt-2">
                         <a href="#" title="WhatsApp Call Center" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-emerald-600 text-slate-400 hover:text-white flex items-center justify-center transition-all">
@@ -673,11 +667,11 @@
                 <div class="lg:col-span-3 space-y-4">
                     <h4 class="text-sm font-extrabold text-white uppercase tracking-wider">Layanan & Portal</h4>
                     <ul class="space-y-2.5 text-xs font-semibold">
-                        <li><a href="{{ route('download.apk') }}" class="hover:text-emerald-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-download text-emerald-500"></i> Download APK Mobile (v1.0.4)</a></li>
-                        <li><a href="{{ route('login') }}" class="hover:text-brand-500 transition-colors flex items-center gap-2"><i class="fa-solid fa-user-shield text-brand-500"></i> Portal Login Dashboard Web</a></li>
-                        <li><a href="#fitur" class="hover:text-brand-500 transition-colors flex items-center gap-2"><i class="fa-solid fa-qrcode text-brand-500"></i> Generator QR Code Presensi</a></li>
-                        <li><a href="#fitur" class="hover:text-brand-500 transition-colors flex items-center gap-2"><i class="fa-solid fa-file-check text-brand-500"></i> Approvals Izin Wali Kelas</a></li>
-                        <li><a href="#spesifikasi" class="hover:text-brand-500 transition-colors flex items-center gap-2"><i class="fa-solid fa-shield-halved text-brand-500"></i> Panduan Keamanan APK</a></li>
+                        <li><a href="{{ route('download.apk') }}" class="hover:text-emerald-400 transition-colors flex items-center gap-2">Download APK Mobile (v1.0.4)</a></li>
+                        <li><a href="{{ route('login') }}" class="hover:text-brand-500 transition-colors flex items-center gap-2">Portal Login Dashboard Web</a></li>
+                        <li><a href="#fitur" class="hover:text-brand-500 transition-colors flex items-center gap-2">Generator QR Code Presensi</a></li>
+                        <li><a href="#fitur" class="hover:text-brand-500 transition-colors flex items-center gap-2">Approvals Izin Wali Kelas</a></li>
+                        <li><a href="#spesifikasi" class="hover:text-brand-500 transition-colors flex items-center gap-2">Panduan Keamanan APK</a></li>
                     </ul>
                 </div>
 

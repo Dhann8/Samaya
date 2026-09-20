@@ -69,7 +69,7 @@ const formattedPhone = formatPhone(phone);
 // Build Message Template
 let message = '';
 if (type === 'MASUK') {
-    message = `*[EDUATTEND] NOTIFIKASI PRESENSI MASUK*
+    message = `*[SAMAYA] NOTIFIKASI PRESENSI MASUK*
 
 Halo, *${name}* (Kelas: ${kelas})
 Presensi *MASUK* Anda telah berhasil dicatat.
@@ -80,8 +80,8 @@ Status  : *${status}*
 Lokasi  : ${lokasi}
 
 Terima kasih telah melakukan presensi tepat waktu. Selamat belajar!`;
-} else {
-    message = `*[EDUATTEND] NOTIFIKASI PRESENSI PULANG*
+} else if (type === 'PULANG') {
+    message = `*[SAMAYA] NOTIFIKASI PRESENSI PULANG*
 
 Halo, *${name}* (Kelas: ${kelas})
 Presensi *PULANG* Anda telah berhasil dicatat.
@@ -90,7 +90,28 @@ Tanggal : *${date}*
 Waktu   : *${time}*
 Lokasi  : ${lokasi}
 
-_Hati-hati di jalan dan selamat beristirahat di rumah!_`;
+Hati-hati di jalan dan selamat beristirahat di rumah!`;
+} else if (type === 'WARNING_TELAT' || type === 'TELAT') {
+    message = `*[SAMAYA] PERINGATAN KETERLAMBATAN PRESENSI*
+
+Halo, *${name}* (Kelas: ${kelas})
+Waktu batas jam masuk (*${time}*) telah terlewati dan Anda belum melakukan presensi hari ini (*${date}*).
+
+Harap segera melakukan presensi sebelum jam batas Alfa.`;
+} else if (type === 'ALFA') {
+    message = `*[SAMAYA] NOTIFIKASI PRESENSI ALFA*
+
+Halo, *${name}* (Kelas: ${kelas})
+Anda tercatat *ALFA* (Tanpa Keterangan) pada hari ini, *${date}*, karena telah melewati jam batas presensi (*${time}*) dan belum melakukan presensi.
+
+Jika terdapat kekeliruan, silakan hubungi Wali Kelas / Sekolah.`;
+} else {
+    message = `*[SAMAYA] NOTIFIKASI PRESENSI*
+
+Halo, *${name}* (Kelas: ${kelas})
+Tanggal : *${date}*
+Waktu   : *${time}*
+Status  : *${status}*`;
 }
 
 log(`SENDING WA to [${formattedPhone}] (${type}) - Name: ${name}`);

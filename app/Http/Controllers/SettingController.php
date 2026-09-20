@@ -24,6 +24,10 @@ class SettingController extends Controller
             'jam_pulang_akhir' => 'required|string',
             'qr_refresh_mode' => 'required|string|in:daily,5_min,15_min,30_min,hourly',
             'sekolah_nama' => 'nullable|string|max:255',
+            'wa_notification_enabled' => 'nullable|string',
+            'wa_gateway_url' => 'nullable|string',
+            'wa_api_token' => 'nullable|string',
+            'wa_delay_seconds' => 'nullable|numeric|min:0|max:60',
         ]);
 
         foreach ($validated as $key => $value) {

@@ -241,7 +241,7 @@
                 </template>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Status Notifikasi WhatsApp</label>
                     <select name="wa_notification_enabled" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-blue-500">
@@ -251,8 +251,15 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">WA Gateway API Token / Key (Opsional)</label>
-                    <input type="text" name="wa_api_token" value="{{ $settings['wa_api_token'] ?? '' }}" placeholder="Kosongkan jika pakai Bot Baileys Mandiri di atas"
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Delay Jeda Pengiriman (Detik)</label>
+                    <input type="number" name="wa_delay_seconds" value="{{ $settings['wa_delay_seconds'] ?? '2' }}" min="0" max="60" step="1" required
+                        placeholder="Default 2 Detik"
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-blue-700 focus:outline-none focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">WA API Token / Key (Opsional)</label>
+                    <input type="text" name="wa_api_token" value="{{ $settings['wa_api_token'] ?? '' }}" placeholder="Kosongkan jika pakai Bot Mandiri"
                         class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-800 focus:outline-none focus:border-blue-500">
                 </div>
             </div>

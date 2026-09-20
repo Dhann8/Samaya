@@ -71,19 +71,6 @@
                 <i class="fa-solid fa-arrow-right text-xs"></i>
             </button>
         </form>
-
-        <div class="mt-6 text-center text-xs text-slate-400 font-medium bg-slate-50 p-3 rounded-xl border border-slate-100">
-            Akun Demo Admin: <span class="text-blue-600 font-mono font-bold">admin@admin.com</span> / <span class="text-blue-600 font-mono font-bold">password</span>
-        </div>
-
-        <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
-            <a href="{{ route('landing') }}" class="text-blue-600 hover:text-blue-800 transition-colors">
-                <i class="fa-solid fa-arrow-left mr-1"></i> Halaman Landing Page
-            </a>
-            <a href="{{ route('download.apk') }}" class="text-emerald-600 hover:text-emerald-800 transition-colors">
-                <i class="fa-solid fa-download mr-1"></i> Unduh APK Mobile
-            </a>
-        </div>
     </div>
 </div>
 @endsection

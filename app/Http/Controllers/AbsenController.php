@@ -436,6 +436,13 @@ class AbsenController extends Controller
             ], 404);
         }
 
+        if ($user->role !== 'siswa') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi harian hanya dapat dilakukan oleh Siswa!'
+            ], 403);
+        }
+
         $today = Carbon::today()->format('Y-m-d');
 
         $request->validate([
@@ -455,7 +462,7 @@ class AbsenController extends Controller
             ->first();
 
         if ($jenis === 'pulang') {
-            if (!$existingAbsen) {
+            if (!$existingAbsen || $existingAbsen->lokasi === 'Sistem Otomatis') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Anda belum melakukan absen datang hari ini!'
@@ -483,7 +490,7 @@ class AbsenController extends Controller
             ], 200);
         }
 
-        if ($existingAbsen) {
+        if ($existingAbsen && $existingAbsen->lokasi !== 'Sistem Otomatis') {
             return response()->json([
                 'success' => false,
                 'message' => 'Anda sudah melakukan absensi datang hari ini!'
@@ -513,8 +520,7 @@ class AbsenController extends Controller
             $keteranganDefault = "Tepat Waktu (Scan jam {$waktuNow} WIB)";
         }
 
-        // 3. Simpan Kehadiran
-        $absen = Absen::create([
+        $absenData = [
             'user_id'    => $user->id,
             'tanggal'    => $today,
             'hari'       => $hari,
@@ -525,7 +531,15 @@ class AbsenController extends Controller
             'longitude'  => $request->input('longitude'),
             'lokasi'     => $request->input('lokasi', 'Lokasi terdeteksi via GPS'),
             'waktu_absen'=> Carbon::now()->format('H:i:s'),
-        ]);
+        ];
+
+        // 3. Simpan / Update Kehadiran Datang
+        if ($existingAbsen && $existingAbsen->lokasi === 'Sistem Otomatis') {
+            $existingAbsen->update($absenData);
+            $absen = $existingAbsen;
+        } else {
+            $absen = Absen::create($absenData);
+        }
 
         // Kirim Notifikasi WhatsApp (Absen Masuk)
         WaNotificationService::sendMasuk($user, $absen);

@@ -33,6 +33,13 @@ class ApiAbsenController extends Controller
     public function qrScan(Request $request)
     {
         $user = $request->user();
+        if ($user->role !== 'siswa') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi harian hanya dapat dilakukan oleh akun Siswa!',
+            ], 403);
+        }
+
         $today = Carbon::today()->format('Y-m-d');
 
         // Check if user already attended today (1x per day limit)
@@ -40,7 +47,7 @@ class ApiAbsenController extends Controller
             ->where('tanggal', $today)
             ->first();
 
-        if ($existingAbsen) {
+        if ($existingAbsen && $existingAbsen->lokasi !== 'Sistem Otomatis') {
             return response()->json([
                 'success' => false,
                 'message' => 'Anda sudah melakukan absensi masuk hari ini!',
@@ -95,7 +102,7 @@ class ApiAbsenController extends Controller
             $keteranganDefault = "Tepat Waktu (Scan jam {$waktuNow} WIB)";
         }
 
-        $absen = Absen::create([
+        $absenData = [
             'user_id'     => $user->id,
             'tanggal'     => $today,
             'hari'        => $hari,
@@ -106,7 +113,14 @@ class ApiAbsenController extends Controller
             'longitude'   => $request->input('longitude') !== null ? (string)$request->input('longitude') : null,
             'lokasi'      => $request->input('lokasi', 'Lokasi terdeteksi via GPS Mobile'),
             'waktu_absen' => Carbon::now()->format('H:i:s'),
-        ]);
+        ];
+
+        if ($existingAbsen && $existingAbsen->lokasi === 'Sistem Otomatis') {
+            $existingAbsen->update($absenData);
+            $absen = $existingAbsen;
+        } else {
+            $absen = Absen::create($absenData);
+        }
 
         // Send WA Notification (Absen Masuk)
         WaNotificationService::sendMasuk($user, $absen);
@@ -138,6 +152,13 @@ class ApiAbsenController extends Controller
     public function absenPulang(Request $request)
     {
         $user = $request->user();
+        if ($user->role !== 'siswa') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi harian hanya dapat dilakukan oleh akun Siswa!',
+            ], 403);
+        }
+
         $today = Carbon::today()->format('Y-m-d');
 
         // Cari data absen masuk hari ini

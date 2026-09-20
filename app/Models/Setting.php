@@ -46,6 +46,8 @@ class Setting extends Model
             'qr_refresh_mode' => 'daily', // daily, 5_min, 15_min, 30_min
             'qr_refresh_interval' => '1',
             'sekolah_nama' => 'SaMaya School',
+            'wa_notification_enabled' => '1',
+            'wa_delay_seconds' => '2',
         ];
 
         $settings = static::pluck('value', 'key')->toArray();

@@ -11,6 +11,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        \App\Services\WaNotificationService::checkAndSendUnattendedNotifications();
+
         $user = auth()->user();
         $isGuru = $user && $user->role === 'guru' && !empty($user->kelas);
         $teacherKelas = $isGuru ? $user->kelas : null;
