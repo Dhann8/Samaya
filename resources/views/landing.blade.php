@@ -144,7 +144,7 @@
                         <a href="{{ route('download.apk') }}" class="w-full sm:w-auto px-8 py-4 rounded-2xl font-extrabold text-base text-white bg-brand-600 hover:bg-brand-700 shadow-xl shadow-brand-600/30 hover:shadow-brand-600/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 group">
                             <i class="fa-solid fa-file-arrow-down text-xl group-hover:bounce"></i>
                             <span>Unduh APK Android</span>
-                            <span class="px-2.5 py-0.5 text-xs bg-white/20 rounded-md font-normal">185 MB</span>
+                            <span class="px-2.5 py-0.5 text-xs bg-white/20 rounded-md font-normal">66.6 MB</span>
                         </a>
 
                         <a href="#instal" class="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-base text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 shadow-soft-blue hover:shadow-hover-blue transition-all flex items-center justify-center gap-2">
@@ -528,7 +528,7 @@
                         </div>
                         <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
                             <p class="text-[11px] text-slate-400 font-semibold uppercase">Ukuran File</p>
-                            <p class="text-sm font-bold text-brand-600 mt-1">185 MB</p>
+                            <p class="text-sm font-bold text-brand-600 mt-1">66.6 MB</p>
                         </div>
                         <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
                             <p class="text-[11px] text-slate-400 font-semibold uppercase">Min. Android</p>
