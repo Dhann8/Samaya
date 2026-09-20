@@ -57,6 +57,13 @@ class WaNotificationService
             return ['processed' => 0, 'warnings' => 0, 'alfas' => 0];
         }
 
+        // Throttle check to at most once per 60 seconds to keep page navigation fast
+        $lockKey = 'unattended_check_lock_' . date('Y-m-d_H:i');
+        if (Cache::has($lockKey)) {
+            return ['processed' => 0, 'warnings' => 0, 'alfas' => 0];
+        }
+        Cache::put($lockKey, true, 60);
+
         $jamBatasTerlambat = Setting::get('jam_batas_terlambat', '07:30');
         $jamBatasAlfa      = Setting::get('jam_batas_alfa', '08:00');
 
@@ -68,11 +75,12 @@ class WaNotificationService
         $warningCount = 0;
         $alfaCount = 0;
 
-        // Fetch all active students (role 'siswa')
+        // Fetch all active students and today's attendance in bulk (2 queries total instead of 50+)
         $students = User::where('role', 'siswa')->get();
+        $todayAbsens = Absen::where('tanggal', $today)->get()->keyBy('user_id');
 
         foreach ($students as $student) {
-            $absen = Absen::where('user_id', $student->id)->where('tanggal', $today)->first();
+            $absen = $todayAbsens->get($student->id);
 
             // 1. Check if current time >= jam_batas_alfa
             if ($currentTime >= $jamBatasAlfa) {

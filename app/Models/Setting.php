@@ -11,13 +11,15 @@ class Setting extends Model
 
     protected $fillable = ['key', 'value'];
 
+    protected static ?array $cachedSettings = null;
+
     /**
      * Get a setting value by key, with optional default.
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        $setting = static::where('key', $key)->first();
-        return $setting ? $setting->value : $default;
+        $all = static::getAll();
+        return $all[$key] ?? $default;
     }
 
     /**
@@ -25,6 +27,7 @@ class Setting extends Model
      */
     public static function set(string $key, mixed $value): static
     {
+        static::$cachedSettings = null; // Reset cache on change
         return static::updateOrCreate(
             ['key' => $key],
             ['value' => $value]
@@ -36,6 +39,10 @@ class Setting extends Model
      */
     public static function getAll(): array
     {
+        if (static::$cachedSettings !== null) {
+            return static::$cachedSettings;
+        }
+
         $defaults = [
             'jam_masuk_mulai' => '00:00',
             'jam_masuk_akhir' => '12:00',
@@ -50,8 +57,14 @@ class Setting extends Model
             'wa_delay_seconds' => '2',
         ];
 
-        $settings = static::pluck('value', 'key')->toArray();
+        try {
+            $settings = static::pluck('value', 'key')->toArray();
+            static::$cachedSettings = array_merge($defaults, $settings);
+        } catch (\Throwable $e) {
+            static::$cachedSettings = $defaults;
+        }
 
-        return array_merge($defaults, $settings);
+        return static::$cachedSettings;
     }
 }
+

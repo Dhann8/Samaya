@@ -26,13 +26,18 @@ class DashboardController extends Controller
         }
 
         $totalUsers = $userQuery->count();
-        $totalAbsen = (clone $absenQuery)->count();
 
-        // Status counts
-        $hadirCount = (clone $absenQuery)->where('status', 'Hadir')->count();
-        $izinCount  = (clone $absenQuery)->where('status', 'Izin')->count();
-        $sakitCount = (clone $absenQuery)->where('status', 'Sakit')->count();
-        $alpaCount  = (clone $absenQuery)->where('status', 'Alpa')->count();
+        // Status counts in 1 single grouped query instead of 5 separate queries
+        $statusGroup = (clone $absenQuery)
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $hadirCount = $statusGroup->get('Hadir', 0);
+        $izinCount  = $statusGroup->get('Izin', 0);
+        $sakitCount = $statusGroup->get('Sakit', 0);
+        $alpaCount  = $statusGroup->get('Alpa', 0);
+        $totalAbsen = $statusGroup->sum();
 
         // Jurusan user distribution
         $jurusanDist = (clone $userQuery)
